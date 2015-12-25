@@ -1,0 +1,8 @@
+concord-api/concord-db/concord-amazon-rds/target/
+concord-api/concord-db/concord-dynamo/target/
+concord-api/concord-db/concord-mongo/target/
+concord-api/concord-db/concord-redis/target/
+concord-api/concord-db/concord-mysql/target/
+concord-api/concord-db/concord-sqlite/target/
+concord-api/concord-gamemode/target/
+concord-api/concord-timetable/target/
