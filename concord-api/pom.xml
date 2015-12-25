@@ -9,6 +9,7 @@
         <module>concord-db</module>
         <module>concord-timetable</module>
         <module>concord-gamemode</module>
+        <module>concord-worldutils</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

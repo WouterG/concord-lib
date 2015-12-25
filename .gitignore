@@ -6,3 +6,4 @@ concord-api/concord-db/concord-mysql/target/
 concord-api/concord-db/concord-sqlite/target/
 concord-api/concord-gamemode/target/
 concord-api/concord-timetable/target/
+/concord-api/concord-worldutils/target/
