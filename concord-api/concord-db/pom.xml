@@ -13,7 +13,6 @@
         <module>concord-mysql</module>
         <module>concord-sqlite</module>
         <module>concord-redis</module>
-        <module>concord-dynamo</module>
-        <module>concord-amazon-rds</module>
+        <module>concord-amazon</module>
     </modules>
 </project>
