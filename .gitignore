@@ -7,3 +7,5 @@ concord-api/concord-db/concord-sqlite/target/
 concord-api/concord-gamemode/target/
 concord-api/concord-timetable/target/
 /concord-api/concord-worldutils/target/
+concord-api/concord-db/concord-amazon/concord-amazon-rds/target/
+concord-api/concord-db/concord-amazon/concord-dynamo/target/
