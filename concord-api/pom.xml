@@ -7,9 +7,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>concord-db</module>
-        <module>concord-timetable</module>
         <module>concord-gamemode</module>
         <module>concord-worldutils</module>
+        <module>concord-scoreboard</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
