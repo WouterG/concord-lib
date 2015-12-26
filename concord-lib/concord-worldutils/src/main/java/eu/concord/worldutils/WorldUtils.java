@@ -28,6 +28,8 @@ import net.minecraft.server.v1_8_R3.IBlockData;
 import net.minecraft.server.v1_8_R3.IContainer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
 import net.minecraft.server.v1_8_R3.TileEntity;
+import net.minecraft.server.v1_8_R3.WorldServer;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -36,6 +38,7 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.util.LongHash;
 import org.bukkit.entity.Player;
 
 /**
@@ -145,6 +148,25 @@ public class WorldUtils {
         PacketPlayOutMapChunk reloadPacket = new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), true, partialIndexBitmask);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(unloadPacket);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(reloadPacket);
+    }
+    
+    /**
+     * Regenerates a chunk entirely, optionally also sending it to the players online
+     * @param world The world you want a chunk to be regenerated in
+     * @param x The chunk's x-coordinate
+     * @param z The chunk's z-coordinate
+     * @param notifyClients Whether to send the players in this world to see the change.
+     */
+    public static void regenerateChunk(World world, int x, int z, boolean notifyClients) {
+        ((CraftWorld)world).getHandle().chunkProviderServer.chunks.remove(LongHash.toLong(x, z));
+        net.minecraft.server.v1_8_R3.Chunk chunk = ((CraftWorld)world).getHandle().chunkProviderServer.originalGetChunkAt(x, z);
+        if (notifyClients) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.getWorld() == world) {
+                    WorldUtils.reloadChunk(p, chunk.bukkitChunk);
+                }
+            }
+        }
     }
 
 }
