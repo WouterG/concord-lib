@@ -60,6 +60,7 @@ class BlockChanger implements Runnable {
             }
         }
         int e = this.currentIndex + this.owner.getBatchSize();
+        e = Math.min(e, this.owner.getEdits().size() - 1);
         List<BlockModification> currentBatch = this.owner.getEdits().subList(this.currentIndex, e);
         this.currentIndex = e;
         for (BlockModification modification : currentBatch) {
