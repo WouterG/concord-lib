@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
+import org.bukkit.entity.Player;
 
 class BlockChanger implements Runnable {
 
@@ -49,7 +50,13 @@ class BlockChanger implements Runnable {
         if (this.currentIndex >= this.owner.getEdits().size()) {
             this.owner.setFinished(true);
             if (this.owner.isUpdateChunksAfterwards()) {
-
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (p.isOnline() && p.getLocation().getWorld().equals(this.owner.getWorld())) {
+                        for (net.minecraft.server.v1_8_R3.Chunk chunk : this.editedChunks.values()) {
+                            WorldUtils.reloadChunk(p, chunk.bukkitChunk);
+                        }
+                    }
+                }
             }
         }
         int e = this.currentIndex + this.owner.getBatchSize();
