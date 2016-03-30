@@ -10,3 +10,5 @@ concord-lib/concord-timetable/target/
 concord-lib/concord-db/concord-amazon/concord-amazon-rds/target/
 concord-lib/concord-db/concord-amazon/concord-dynamo/target/
 /concord-lib/concord-scoreboard/target/
+*.iml
+.idea

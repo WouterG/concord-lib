@@ -23,22 +23,20 @@
  */
 package eu.concord.worldutils;
 
-import net.minecraft.server.v1_8_R3.BlockPosition;
-import net.minecraft.server.v1_8_R3.IBlockData;
-import net.minecraft.server.v1_8_R3.IContainer;
-import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_8_R3.TileEntity;
-import net.minecraft.server.v1_8_R3.WorldServer;
+import net.minecraft.server.v1_9_R1.BlockPosition;
+import net.minecraft.server.v1_9_R1.IBlockData;
+import net.minecraft.server.v1_9_R1.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_9_R1.TileEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
-import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_8_R3.util.LongHash;
+import org.bukkit.craftbukkit.v1_9_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_9_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R1.util.LongHash;
 import org.bukkit.entity.Player;
 
 /**
@@ -65,7 +63,7 @@ public class WorldUtils {
     public static boolean setBlock(World world, int x, int y, int z, Material material, int metadata) {
         BlockPosition pos = new BlockPosition(x, y, z);
         int combinedID = material.getId() + ((short) metadata << 12);
-        IBlockData block = net.minecraft.server.v1_8_R3.Block.getByCombinedId(combinedID);
+        IBlockData block = net.minecraft.server.v1_9_R1.Block.getByCombinedId(combinedID);
         if (world.getChunkAt(x >> 4, z >> 4) == null) {
             // The entire 16x256x16 chunk doesn't exist. Abort this blockchange.
             return false;
@@ -77,14 +75,14 @@ public class WorldUtils {
             return true;
         }
         if (block.getBlock() instanceof IContainer) {
-            TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_8_R3.Chunk.EnumTileEntityState.CHECK);
+            TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_9_R1.Chunk.EnumTileEntityState.CHECK);
             if (tileentity != null) {
                 tileentity.E();
             }
         }
         ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getSections()[y >> 4].setType(x & 15, y & 15, z & 15, block);
         if (block.getBlock() instanceof IContainer) {
-            TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_8_R3.Chunk.EnumTileEntityState.CHECK);
+            TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_9_R1.Chunk.EnumTileEntityState.CHECK);
             if (tileentity == null) {
                 tileentity = ((IContainer) block.getBlock()).a(((CraftWorld) world).getHandle(), block.getBlock().toLegacyData(block));
                 ((CraftWorld) world).getHandle().setTileEntity(pos, tileentity);
@@ -113,7 +111,7 @@ public class WorldUtils {
         if (world.getChunkAt(x >> 4, z >> 4) == null || biome == null) {
             return false;
         }
-        ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getBiomeIndex()[((z & 0xF) << 4) | (x & 0xF)] = (byte) CraftBlock.biomeToBiomeBase(biome).id;
+        ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getBiomeIndex()[((z & 0xF) << 4) | (x & 0xF)] = (byte) CraftBlock.biomeToBiomeBase(biome).;
         return true;
     }
 
@@ -158,8 +156,8 @@ public class WorldUtils {
      * @param notifyClients Whether to send the players in this world to see the change.
      */
     public static void regenerateChunk(World world, int x, int z, boolean notifyClients) {
-        ((CraftWorld)world).getHandle().chunkProviderServer.chunks.remove(LongHash.toLong(x, z));
-        net.minecraft.server.v1_8_R3.Chunk chunk = ((CraftWorld)world).getHandle().chunkProviderServer.originalGetChunkAt(x, z);
+        ((CraftWorld)world).getHandle().getChunkProviderServer().chunks.remove(LongHash.toLong(x, z));
+        net.minecraft.server.v1_9_R1.Chunk chunk = ((CraftWorld)world).getHandle().getChunkProviderServer().originalGetChunkAt(x, z);
         if (notifyClients) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (p.getWorld() == world) {
