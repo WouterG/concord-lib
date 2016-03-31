@@ -48,8 +48,9 @@ class BlockChanger implements Runnable {
 
     @Override
     public void run() {
-        if (this.currentIndex >= this.owner.getEdits().size()) {
+        if (this.currentIndex >= this.owner.getEdits().size() - 1) {
             this.owner.setFinished(true);
+            this.setRunning(false);
             if (this.owner.isUpdateChunksAfterwards()) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p.isOnline() && p.getLocation().getWorld().equals(this.owner.getWorld())) {
@@ -59,6 +60,10 @@ class BlockChanger implements Runnable {
                     }
                 }
             }
+            if (this.owner.emitsEvents()) {
+                Bukkit.getPluginManager().callEvent(new BlockChangeTaskStatusEvent(this.owner.getStatus()));
+            }
+            return;
         }
         int e = this.currentIndex + this.owner.getBatchSize();
         e = Math.min(e, this.owner.getEdits().size() - 1);
