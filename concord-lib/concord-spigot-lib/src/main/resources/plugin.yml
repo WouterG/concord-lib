@@ -1,0 +1,6 @@
+name: ConcordLib
+main: eu.concord.spigotlib.ConcordSpigotLib
+author: team-concord
+authors: [ Wouto1997 ]
+description: Shades all Concord libraries to a spigot plugin
+version: "${project.version}"

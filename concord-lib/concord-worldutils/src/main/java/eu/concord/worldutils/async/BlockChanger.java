@@ -25,18 +25,19 @@ package eu.concord.worldutils.async;
 
 import eu.concord.worldutils.WorldUtils;
 import eu.concord.worldutils.async.events.BlockChangeTaskStatusEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_9_R1.CraftChunk;
+import org.bukkit.entity.Player;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
-import org.bukkit.entity.Player;
 
 class BlockChanger implements Runnable {
 
     private final BlockChangeTask owner;
     private int currentIndex;
     private boolean running;
-    private ConcurrentHashMap<ChangedChunk, net.minecraft.server.v1_8_R3.Chunk> editedChunks;
+    private ConcurrentHashMap<ChangedChunk, net.minecraft.server.v1_9_R1.Chunk> editedChunks;
 
     BlockChanger(BlockChangeTask owner) {
         this.owner = owner;
@@ -52,7 +53,7 @@ class BlockChanger implements Runnable {
             if (this.owner.isUpdateChunksAfterwards()) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p.isOnline() && p.getLocation().getWorld().equals(this.owner.getWorld())) {
-                        for (net.minecraft.server.v1_8_R3.Chunk chunk : this.editedChunks.values()) {
+                        for (net.minecraft.server.v1_9_R1.Chunk chunk : this.editedChunks.values()) {
                             WorldUtils.reloadChunk(p, chunk.bukkitChunk);
                         }
                     }

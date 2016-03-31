@@ -23,10 +23,7 @@
  */
 package eu.concord.worldutils;
 
-import net.minecraft.server.v1_9_R1.BlockPosition;
-import net.minecraft.server.v1_9_R1.IBlockData;
-import net.minecraft.server.v1_9_R1.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_9_R1.TileEntity;
+import net.minecraft.server.v1_9_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -34,7 +31,6 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.craftbukkit.v1_9_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_9_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R1.util.LongHash;
 import org.bukkit.entity.Player;
@@ -74,21 +70,21 @@ public class WorldUtils {
             ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, block);
             return true;
         }
-        if (block.getBlock() instanceof IContainer) {
+        if (block.getBlock() instanceof ITileEntity) {
             TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_9_R1.Chunk.EnumTileEntityState.CHECK);
             if (tileentity != null) {
-                tileentity.E();
+                tileentity.invalidateBlockCache();
             }
         }
         ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getSections()[y >> 4].setType(x & 15, y & 15, z & 15, block);
-        if (block.getBlock() instanceof IContainer) {
+        if (block.getBlock() instanceof ITileEntity) {
             TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_9_R1.Chunk.EnumTileEntityState.CHECK);
             if (tileentity == null) {
-                tileentity = ((IContainer) block.getBlock()).a(((CraftWorld) world).getHandle(), block.getBlock().toLegacyData(block));
+                tileentity = ((ITileEntity) block.getBlock()).a(((CraftWorld) world).getHandle(), block.getBlock().toLegacyData(block));
                 ((CraftWorld) world).getHandle().setTileEntity(pos, tileentity);
             }
             if (tileentity != null) {
-                tileentity.E();
+                tileentity.invalidateBlockCache();
             }
         }
         return true;
@@ -111,7 +107,7 @@ public class WorldUtils {
         if (world.getChunkAt(x >> 4, z >> 4) == null || biome == null) {
             return false;
         }
-        ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getBiomeIndex()[((z & 0xF) << 4) | (x & 0xF)] = (byte) CraftBlock.biomeToBiomeBase(biome).;
+        ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getBiomeIndex()[((z & 0xF) << 4) | (x & 0xF)] = (byte) biome.ordinal();
         return true;
     }
 

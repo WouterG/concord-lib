@@ -6,9 +6,10 @@ concord-lib/concord-db/concord-mysql/target/
 concord-lib/concord-db/concord-sqlite/target/
 concord-lib/concord-gamemode/target/
 concord-lib/concord-timetable/target/
-/concord-lib/concord-worldutils/target/
+concord-lib/concord-worldutils/target/
 concord-lib/concord-db/concord-amazon/concord-amazon-rds/target/
 concord-lib/concord-db/concord-amazon/concord-dynamo/target/
-/concord-lib/concord-scoreboard/target/
+concord-lib/concord-scoreboard/target/
+concord-lib/concord-spigot-lib/target/
 *.iml
 .idea
