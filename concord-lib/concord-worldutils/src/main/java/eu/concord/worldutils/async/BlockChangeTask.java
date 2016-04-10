@@ -23,12 +23,13 @@
  */
 package eu.concord.worldutils.async;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Class providing a wrapper for mass block-edits, splitting it up in parts and applying the changes through NMS.
@@ -38,9 +39,8 @@ public class BlockChangeTask {
     
     private final JavaPlugin owner;
     private final World world;
-    private final ArrayList<BlockModification> edits;
+    private final ArrayList<IBlockModification> edits;
     private final int batchSize;
-    private boolean updateChunksAfterwards;
     private boolean emitEvents;
     private boolean finished;
     private BlockChanger task;
@@ -52,8 +52,8 @@ public class BlockChangeTask {
      * @param world The world this task should run in
      * @param edits The block changes to do in this task
      */
-    public BlockChangeTask(JavaPlugin owner, World world, Collection<BlockModification> edits) {
-        this(owner, world, edits, 1_000_000);
+    public BlockChangeTask(JavaPlugin owner, World world, Collection<IBlockModification> edits) {
+        this(owner, world, edits, 250_000);
     }
     
     /**
@@ -63,13 +63,12 @@ public class BlockChangeTask {
      * @param edits The block changes to do in this task
      * @param batchSize The amount of blocks to be changed per batch. Default is 1,000,000
      */
-    public BlockChangeTask(JavaPlugin owner, World world, Collection<BlockModification> edits, int batchSize) {
+    public BlockChangeTask(JavaPlugin owner, World world, Collection<IBlockModification> edits, int batchSize) {
         this.owner = owner;
         this.world = world;
         this.edits = new ArrayList();
         this.edits.addAll(edits);
-        this.batchSize = batchSize;
-        this.updateChunksAfterwards = true;
+        this.batchSize = Math.max(1, batchSize);
         this.emitEvents = true;
         this.finished = false;
         this.task = new BlockChanger(this);
@@ -122,7 +121,7 @@ public class BlockChangeTask {
         return new BlockChangeStatus(
                 this.owner,
                 this.edits.size(),
-                this.task.getCurrentIndex(),
+                this.task.getBlockChangeWorkerIndex(),
                 this.task.isRunning(),
                 this.finished
         );
@@ -145,8 +144,8 @@ public class BlockChangeTask {
     /**
      * @return A copy of the modifications this task does
      */
-    public ArrayList<BlockModification> getEdits() {
-        ArrayList<BlockModification> editsClone = new ArrayList();
+    public ArrayList<IBlockModification> getEdits() {
+        ArrayList<IBlockModification> editsClone = new ArrayList();
         editsClone.addAll(edits);
         return editsClone;
     }
@@ -156,20 +155,6 @@ public class BlockChangeTask {
      */
     public int getBatchSize() {
         return batchSize;
-    }
-
-    /**
-     * @return Whether the chunks should be resent to all players when the task is done
-     */
-    public boolean isUpdateChunksAfterwards() {
-        return updateChunksAfterwards;
-    }
-
-    /**
-     * @param updateChunksAfterwards Whether this task should update all players after the task is finished
-     */
-    public void setUpdateChunksAfterwards(boolean updateChunksAfterwards) {
-        this.updateChunksAfterwards = updateChunksAfterwards;
     }
     
     /**

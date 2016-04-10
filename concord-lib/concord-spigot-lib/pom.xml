@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>eu.concord</groupId>
+    <artifactId>concord-spigot-lib</artifactId>
+    <version>1.9.2-R0.1-SNAPSHOT</version>
+
+    <build>
+
+        <resources>
+            <resource>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources/</directory>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+        </resources>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>eu.concord:*</include>
+                                </includes>
+                            </artifactSet>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-amazon-rds</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-dynamo</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-mongo</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-mysql</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-redis</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-sqlite</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-gamemode</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-scoreboard</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.concord</groupId>
+            <artifactId>concord-worldutils</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

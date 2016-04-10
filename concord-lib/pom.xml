@@ -10,6 +10,8 @@
         <module>concord-gamemode</module>
         <module>concord-worldutils</module>
         <module>concord-scoreboard</module>
+        <module>concord-spigot-lib</module>
+        <module>concord-command-framework</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,7 +26,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <version>1.9.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
