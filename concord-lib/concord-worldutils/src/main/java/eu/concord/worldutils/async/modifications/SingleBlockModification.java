@@ -1,60 +1,39 @@
-/**
-   The MIT License (MIT)
+package eu.concord.worldutils.async.modifications;
 
-    Copyright (c) 2015 team-concord
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-package eu.concord.worldutils.async;
-
+import eu.concord.worldutils.WorldUtils;
+import eu.concord.worldutils.async.IBlockModification;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 
 /**
- * A single block modification, to be executed by the BlockChangeTask.
- * Not World-specific.
- * @author Wouter
+ * Created by wouter on 4/1/16.
  */
-public class BlockModification {
-    
+public class SingleBlockModification implements IBlockModification {
+
     private final int x;
     private final int y;
     private final int z;
     private final Material material;
     private final int metadata;
-    
+    private boolean finished;
+
     /**
-     * Create a new BlockModification instance
+     * Create a new SingleBlockModification instance
      * @param location The location of the block to change
      * @param material The material to set the block to
      */
-    public BlockModification(Location location, Material material) {
+    public SingleBlockModification(Location location, Material material) {
         this(location, material, 0);
     }
-    
+
     /**
-     * Create a new BlockModification instance
+     * Create a new SingleBlockModification instance
      * @param location The location of the block to change
      * @param material The material to set the block to
      * @param metadata The metadata to set to the block
      */
-    public BlockModification(Location location, Material material, int metadata) {
+    public SingleBlockModification(Location location, Material material, int metadata) {
         this(
                 location.getBlockX(),
                 location.getBlockY(),
@@ -63,33 +42,34 @@ public class BlockModification {
                 metadata
         );
     }
-    
+
     /**
-     * Create a new BlockModification instance
+     * Create a new SingleBlockModification instance
      * @param x The x-coordinate of the block to change
      * @param y The y-coordinate of the block to change
      * @param z The z-coordinate of the block to change
      * @param material The material to set the block to
      */
-    public BlockModification(int x, int y, int z, Material material) {
+    public SingleBlockModification(int x, int y, int z, Material material) {
         this(x, y, z, material, 0);
     }
-    
-    
+
+
     /**
-     * Create a new BlockModification instance
+     * Create a new SingleBlockModification instance
      * @param x The x-coordinate of the block to change
      * @param y The y-coordinate of the block to change
      * @param z The z-coordinate of the block to change
      * @param material The material to set the block to
      * @param metadata The metadata to set to the block
      */
-    public BlockModification(int x, int y, int z, Material material, int metadata) {
+    public SingleBlockModification(int x, int y, int z, Material material, int metadata) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.material = material;
         this.metadata = metadata;
+        this.finished = false;
     }
 
     /**
@@ -126,7 +106,17 @@ public class BlockModification {
     public int getMetadata() {
         return metadata;
     }
-    
-    
-    
+
+    @Override
+    public boolean isFinished() {
+        return this.finished;
+    }
+
+    @Override
+    public int run(World w, int batchSize) {
+        WorldUtils.setBlock(w, this.x, this.y, this.z, this.material, this.metadata);
+        this.finished = true;
+        return 1;
+    }
+
 }

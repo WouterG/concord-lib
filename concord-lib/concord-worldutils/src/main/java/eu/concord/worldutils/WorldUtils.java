@@ -23,16 +23,14 @@
  */
 package eu.concord.worldutils;
 
-import net.minecraft.server.v1_9_R1.*;
-import org.bukkit.Bukkit;
+import net.minecraft.server.v1_9_R1.PacketPlayOutMapChunk;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_9_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_9_R1.util.LongHash;
 import org.bukkit.entity.Player;
 
 /**
@@ -43,9 +41,23 @@ import org.bukkit.entity.Player;
 public class WorldUtils {
 
     /**
-     * Set a block in the world through NMS, without updating the change on the
-     * clients. You can use the {@link #reloadChunk(Player, Chunk) reloadChunk}
-     * method to send the changes.
+     * Set a block in the world
+     *
+     * @param world The world to which to apply the block change
+     * @param x The x-coordinate of the block to be changed
+     * @param y The y-coordinate of the block to be changed
+     * @param z The z-coordinate of the block to be changed
+     * @param material The new material for the block
+     * @return True if the block change was successful, false if the chunk has
+     * not been generated yet
+     */
+    @SuppressWarnings("deprecation")
+    public static boolean setBlock(World world, int x, int y, int z, Material material) {
+        return world.getBlockAt(x, y, z).setTypeId(material.getId(), false);
+    }
+
+    /**
+     * Set a block in the world
      *
      * @param world The world to which to apply the block change
      * @param x The x-coordinate of the block to be changed
@@ -56,41 +68,13 @@ public class WorldUtils {
      * @return True if the block change was successful, false if the chunk has
      * not been generated yet
      */
+    @SuppressWarnings("deprecation")
     public static boolean setBlock(World world, int x, int y, int z, Material material, int metadata) {
-        BlockPosition pos = new BlockPosition(x, y, z);
-        int combinedID = material.getId() + ((short) metadata << 12);
-        IBlockData block = net.minecraft.server.v1_9_R1.Block.getByCombinedId(combinedID);
-        if (world.getChunkAt(x >> 4, z >> 4) == null) {
-            // The entire 16x256x16 chunk doesn't exist. Abort this blockchange.
-            return false;
-        }
-        if (((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getSections()[y >> 4] == null) {
-            // the 16x16x16 section in the 16x256x16 chunk isn't initialized yet.
-            // This first creates that section and then sets the block
-            ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, block);
-            return true;
-        }
-        if (block.getBlock() instanceof ITileEntity) {
-            TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_9_R1.Chunk.EnumTileEntityState.CHECK);
-            if (tileentity != null) {
-                tileentity.invalidateBlockCache();
-            }
-        }
-        ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().getSections()[y >> 4].setType(x & 15, y & 15, z & 15, block);
-        if (block.getBlock() instanceof ITileEntity) {
-            TileEntity tileentity = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle().a(pos, net.minecraft.server.v1_9_R1.Chunk.EnumTileEntityState.CHECK);
-            if (tileentity == null) {
-                tileentity = ((ITileEntity) block.getBlock()).a(((CraftWorld) world).getHandle(), block.getBlock().toLegacyData(block));
-                ((CraftWorld) world).getHandle().setTileEntity(pos, tileentity);
-            }
-            if (tileentity != null) {
-                tileentity.invalidateBlockCache();
-            }
-        }
-        return true;
+        return world.getBlockAt(x, y, z).setTypeIdAndData(material.getId(), (byte) metadata, false);
     }
 
     /**
+     * - UNTESTED IN 1.9 -
      * Change the biome at a specific coordinate using NMS, without updating the
      * change on the clients. You can use the
      * {@link #reloadChunk(Player, Chunk) reloadChunk} method to send the
@@ -118,13 +102,12 @@ public class WorldUtils {
      * @param chunk The chunk to be resent
      */
     public static void reloadChunk(Player player, Chunk chunk) {
-        PacketPlayOutMapChunk unloadPacket = new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), true, 0);
         PacketPlayOutMapChunk reloadPacket = new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), true, 65535);
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(unloadPacket);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(reloadPacket);
     }
 
     /**
+     * - UNTESTED in 1.9 -
      * Resends a partial chunk to the player. The partialIndex is an index
      * counting from the bottom of the pillar upwards, in blocks of 16. 0 will
      * update the bottom 16^3 blocks, 16 the top ones.
@@ -138,29 +121,13 @@ public class WorldUtils {
             return;
         }
         int partialIndexBitmask = 1 << partialIndex;
-        PacketPlayOutMapChunk unloadPacket = new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), true, 0);
         PacketPlayOutMapChunk reloadPacket = new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), true, partialIndexBitmask);
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(unloadPacket);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(reloadPacket);
     }
-    
-    /**
-     * Regenerates a chunk entirely, optionally also sending it to the players online
-     * @param world The world you want a chunk to be regenerated in
-     * @param x The chunk's x-coordinate
-     * @param z The chunk's z-coordinate
-     * @param notifyClients Whether to send the players in this world to see the change.
-     */
-    public static void regenerateChunk(World world, int x, int z, boolean notifyClients) {
-        ((CraftWorld)world).getHandle().getChunkProviderServer().chunks.remove(LongHash.toLong(x, z));
-        net.minecraft.server.v1_9_R1.Chunk chunk = ((CraftWorld)world).getHandle().getChunkProviderServer().originalGetChunkAt(x, z);
-        if (notifyClients) {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (p.getWorld() == world) {
-                    WorldUtils.reloadChunk(p, chunk.bukkitChunk);
-                }
-            }
-        }
+
+    public static boolean isBlock(World w, int x, int y, int z, Material material, int metadata) {
+        Block b = w.getBlockAt(x, y, z);
+        return (b.getType() == material && b.getData() == (byte) metadata);
     }
 
 }

@@ -11,6 +11,7 @@
         <module>concord-worldutils</module>
         <module>concord-scoreboard</module>
         <module>concord-spigot-lib</module>
+        <module>concord-command-framework</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
