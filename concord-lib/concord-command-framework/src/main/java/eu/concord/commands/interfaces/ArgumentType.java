@@ -1,7 +1,14 @@
 package eu.concord.commands.interfaces;
 
-public interface ArgumentType<T> {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    T parseArgument(String input) throws Exception;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ArgumentType {
+
+    Class<? extends ArgumentParser>[] value();
 
 }
