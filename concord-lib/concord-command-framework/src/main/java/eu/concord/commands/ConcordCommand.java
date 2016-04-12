@@ -1,8 +1,8 @@
 package eu.concord.commands;
 
-import eu.concord.commands.impl.DefaultArgumentVerifier;
+import eu.concord.commands.exceptions.InvalidArgumentException;
+import eu.concord.commands.exceptions.ParserNotFoundException;
 import eu.concord.commands.impl.DefaultCommandRunner;
-import eu.concord.commands.interfaces.ArgumentVerifier;
 import eu.concord.commands.interfaces.CommandRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,11 +12,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class ConcordCommand<PLUGIN extends JavaPlugin> implements CommandExecutor {
 
-
     private CommandRunner<CommandSender> defaultHandler = new DefaultCommandRunner();
-    private ArgumentVerifier defaultVerifier = new DefaultArgumentVerifier();
 
     private final String name;
     private final ArgumentParseHelper parseHelper;
@@ -31,17 +32,43 @@ public abstract class ConcordCommand<PLUGIN extends JavaPlugin> implements Comma
     public abstract CommandFormat[] getCommandHandlers();
 
     public boolean onCommand(CommandSender commandSender, Command command, String commandAlias, String[] args) {
+        CommandFormat cmdF = null;
+        Player p = null;
+        if (commandSender instanceof Player) {
+            p = (Player) commandSender;
+        }
         for (int i = 0; i < this.getCommandHandlers().length; i++) {
             CommandFormat cmd = this.getCommandHandlers()[i];
             if (args.length < cmd.getRequiredArgumentLength()) {
                 continue;
             }
+            if (p != null && cmd.hasPermission(p)) {
+                continue;
+            }
+            try {
+                Object[] parsedArgs = this.getParseHelper().parseArguments(cmd.getArgumentTypes(), args);
+                Arguments argsObj = new Arguments(parsedArgs);
+                if (p != null && cmd.getPlayerHandler() != null) {
+                    cmd.getPlayerHandler().run(p, argsObj);
+                } else if (cmd.getConsoleHandler() != null) {
+                    cmd.getConsoleHandler().run(commandSender, argsObj);
+                } else {
+                    this.getDefaultHandler().run(commandSender, argsObj);
+                }
+                return true;
+            } catch (ParserNotFoundException e) {
+                error(commandSender, "An error occured, please contact an administrator");
+                e.printStackTrace(); // programmer error - do print
+            } catch (InvalidArgumentException e) {
+                continue;
+            }
         }
-
+        error(commandSender, "Invalid usage!");
+        sendUsage(commandSender);
         return true;
     }
 
-    public void sendMessage(final Player p, final String... message) {
+    public void sendMessage(final CommandSender p, final String... message) {
         Bukkit.getScheduler().runTask(this.plugin, new Runnable() {
             @Override
             public void run() {
@@ -52,17 +79,23 @@ public abstract class ConcordCommand<PLUGIN extends JavaPlugin> implements Comma
         });
     }
 
-    public void success(Player p, String msg) {
+    public void success(CommandSender p, String msg) {
         this.sendMessage(p, ChatColor.GREEN + msg);
     }
 
-    public void error(Player p, String msg) {
+    public void error(CommandSender p, String msg) {
         this.sendMessage(p, ChatColor.RED + msg);
     }
 
-    public void sendUsage(Player p) {
-        // TODO
-        this.sendMessage(p, "");
+    public void sendUsage(CommandSender p) {
+        List<String> usage = new ArrayList();
+        usage.add(ChatColor.GRAY + "Usage:");
+        for (CommandFormat f : getCommandHandlers()) {
+            for (String s : f.getUsage()) {
+                usage.add(ChatColor.BLUE + s);
+            }
+        }
+        this.sendMessage(p, usage.toArray(new String[usage.size()]));
     }
 
     public String getName() {
@@ -81,22 +114,11 @@ public abstract class ConcordCommand<PLUGIN extends JavaPlugin> implements Comma
         return this.defaultHandler;
     }
 
-    public final ArgumentVerifier getDefaultVerifier() {
-        return this.defaultVerifier;
-    }
-
     public void setDefaultHandler(CommandRunner<CommandSender> handler) {
         if (handler == null) {
             handler = new DefaultCommandRunner();
         }
         this.defaultHandler = handler;
-    }
-
-    public void setDefaultVerifier(ArgumentVerifier verifier) {
-        if (verifier == null) {
-            verifier = new DefaultArgumentVerifier();
-        }
-        this.defaultVerifier = verifier;
     }
 
 }

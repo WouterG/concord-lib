@@ -30,27 +30,29 @@ public class ArgumentParseHelper {
         parsers.put(String.class, new StringArgument());
     }
 
-    public Object parseArguments(Class[] types, String[] args) throws ParserNotFoundException, InvalidArgumentException {
+    public Object[] parseArguments(Map<Integer, Class> types, String[] args) throws ParserNotFoundException, InvalidArgumentException {
         if (this.combineQuotedArguments) {
             args = CommandUtils.combineQuotedArgs(args);
         }
-        if (args.length != types.length) {
-            return false;
-        }
         List<Object> parsedArguments = new ArrayList();
-        for (int i = 0; i < types.length; i++) {
-            ArgumentParser parser = getParser(types[i]);
+        for (int i = 0; i < args.length; i++) {
+            Class c = types.get(i);
+            if (c == null) {
+                parsedArguments.add(args[i]);
+                continue;
+            }
+            ArgumentParser parser = getParser(c);
             if (parser == null) {
-                throw new ParserNotFoundException(types[i]);
+                throw new ParserNotFoundException(c);
             }
             try {
                 Object parsed = parser.parseArgument(args[i]);
                 parsedArguments.add(parsed);
             } catch (Exception e) {
-                throw new InvalidArgumentException(types[i], args[i]);
+                throw new InvalidArgumentException(c, args[i]);
             }
         }
-        return parsedArguments;
+        return parsedArguments.toArray();
     }
 
     public <T> void registerParser(Class<T> type, ArgumentParser<T> parser) {

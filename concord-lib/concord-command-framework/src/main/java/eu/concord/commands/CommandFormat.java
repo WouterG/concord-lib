@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CommandFormat {
 
-    private final String usage;
+    private final String[] usageLines;
     private final ConcordCommand owner;
 
     private String permStr;
@@ -23,9 +23,9 @@ public class CommandFormat {
 
     private int arglength;
 
-    public CommandFormat(ConcordCommand cmd, String usage, int arglength) {
+    public CommandFormat(ConcordCommand cmd, int arglength, String... usageLines) {
         this.owner = cmd;
-        this.usage = usage;
+        this.usageLines = usageLines;
 
         this.arglength = arglength;
 
@@ -37,21 +37,28 @@ public class CommandFormat {
         return p.hasPermission(permStr);
     }
 
-    public void permission(String perm) {
+    public CommandFormat permission(String perm) {
         this.permStr = perm;
+        return this;
     }
 
-    public void types(Class... types) {
+    public CommandFormat types(Class... types) {
         for (int i = 0; i < types.length; i++) {
             argTypes.put(i, types[i]);
         }
+        return this;
     }
 
-    public void verify(int argIndex, ArgumentVerifier verifier) {
+    public CommandFormat verify(int argIndex, ArgumentVerifier verifier) {
         if (argIndex < 0 || argIndex > 1024) {
-            return;
+            return this;
         }
         this.argVerifiers.put(argIndex, verifier);
+        return this;
+    }
+
+    public String[] getUsage() {
+        return this.usageLines;
     }
 
     protected Map<Integer, Class> getArgumentTypes() {
@@ -66,12 +73,14 @@ public class CommandFormat {
         return this.arglength;
     }
 
-    public void console(CommandRunner<CommandSender> runner) {
+    public CommandFormat console(CommandRunner<CommandSender> runner) {
         this.consoleHandler = runner;
+        return this;
     }
 
-    public void player(CommandRunner<Player> runner) {
+    public CommandFormat player(CommandRunner<Player> runner) {
         this.playerHandler = runner;
+        return this;
     }
 
     public CommandRunner<CommandSender> getConsoleHandler() {

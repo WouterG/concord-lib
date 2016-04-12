@@ -13,3 +13,4 @@ concord-lib/concord-scoreboard/target/
 concord-lib/concord-spigot-lib/target/
 *.iml
 .idea
+concord-lib/concord-command-framework/target/
