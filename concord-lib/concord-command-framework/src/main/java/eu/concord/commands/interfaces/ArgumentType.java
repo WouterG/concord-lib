@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface ArgumentType {
 
-    Class<? extends ArgumentParser>[] value();
+    Class[] value();
 
 }
